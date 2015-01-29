@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<bean id="auth0EntryPoint" class="com.auth0.spring.security.auth0.Auth0AuthenticationEntryPoint" />
+
+	<!-- all urls starting with unsecured are -->
+	<security:http name="securedSecurityFilterChain" pattern="${auth0.authorisedRoute}" create-session="stateless"  entry-point-ref="auth0EntryPoint" >
+		<security:intercept-url pattern="${auth0.authorisedRoute}" access="ROLE_USER"/>
+		<security:custom-filter ref="auth0Filter" after="SECURITY_CONTEXT_FILTER" />
+	</security:http>
+
+	<!-- Otherwise by default everything is secured -->
+	<security:http name="defaultSecurityFilterChain" auto-config="true" use-expressions="true"  pattern="/**" create-session="stateless"  entry-point-ref="auth0EntryPoint">
+		<security:intercept-url pattern="/**" access='permitAll'  />
+	</security:http>
+
+	<bean id="auth0Filter" class="com.auth0.spring.security.auth0.Auth0AuthenticationFilter" autowire-candidate="false">
+		<property name="entryPoint" ref="auth0EntryPoint"/>
+	</bean>
+
+	<bean id="auth0AuthenticationProvider" class="com.auth0.spring.security.auth0.Auth0AuthenticationProvider"
+		  p:clientSecret="${auth0.clientSecret}" p:clientId="${auth0.clientId}"
+          p:securedRoute="${auth0.authorisedRoute}"/>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider ref="auth0AuthenticationProvider" />
+	</security:authentication-manager>
+	
+</beans>

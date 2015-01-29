@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        maven { url "http://repo.spring.io/libs-release" }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.6.RELEASE")
+    }
+}
+
+plugins {
+    id 'java'
+    id 'jetty'
+    id 'war'
+}
+
+apply plugin: 'spring-boot'
+
+group = 'griffio'
+version = '0.1-SNAPSHOT'
+description = "spring-security-auth0-api-example"
+project.ext.sourceCompatibility = JavaVersion.VERSION_1_8
+project.ext.targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-release" }
+}
+
+dependencies {
+    compile(
+        'org.springframework.boot:spring-boot-starter-web',
+        'org.springframework.boot:spring-boot-starter-security',
+        'com.auth0:java-jwt:2.0.1')
+
+    testCompile(
+        'junit:junit',
+        'org.springframework.boot:spring-boot-starter-test')
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
+
+
