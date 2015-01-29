@@ -2,6 +2,12 @@
 
 Updated Project with Spring Boot and Gradle and JWT library.
 
+https://auth0.com/ 
+
+This version is a secure resource application that uses a simple JWT as the bearer token value to be validated.
+
+JWT is produced by a successfull authentication.
+
 #Running the example
 
 The ClientSecret, ClientId and Domain for Auth0 app is not supplied.
