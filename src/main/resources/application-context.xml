@@ -12,7 +12,7 @@
 
     <import resource="classpath:auth0-security-context.xml"/>
 
-    <context:component-scan base-package="com.auth0"/>
+    <context:component-scan base-package="com.auth0,griffio.auth0"/>
 
     <context:annotation-config/>
 

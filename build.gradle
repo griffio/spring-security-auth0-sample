@@ -40,6 +40,10 @@ dependencies {
         'org.springframework.boot:spring-boot-starter-test')
 }
 
+httpPort = 8080
+stopPort = 9080
+stopKey = "stopKey"
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
