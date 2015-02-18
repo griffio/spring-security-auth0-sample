@@ -27,13 +27,10 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
 	private JWTVerifier jwtVerifier = null;
 	private String clientSecret = null;
 	private String clientId = null;
-	private String securedRoute = null;
 	private final Log logger = LogFactory.getLog(getClass());
-	private static final AuthenticationException AUTH_ERROR = new Auth0TokenException(
-			"Authentication error occured");
+	private static final AuthenticationException AUTH_ERROR = new Auth0TokenException("Authentication error occured");
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
 		String token = ((Auth0JWTToken) authentication).getJwt();
 
@@ -83,23 +80,11 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
 
 	public void afterPropertiesSet() throws Exception {
 		if ((clientSecret == null) || (clientId == null)) {
-			throw new RuntimeException(
-					"client secret and client id are not set for Auth0AuthenticationProvider");
-		}
-		if (securedRoute == null) {
-			throw new RuntimeException(
-					"You must set which route pattern is used to check for users so that they must be authenticated");
+			throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
 		}
 		jwtVerifier = new JWTVerifier(clientSecret, clientId);
 	}
 
-	public String getSecuredRoute() {
-		return securedRoute;
-	}
-
-	public void setSecuredRoute(String securedRoute) {
-		this.securedRoute = securedRoute;
-	}
 
 	public String getClientSecret() {
 		return clientSecret;

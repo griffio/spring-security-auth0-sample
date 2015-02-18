@@ -1,5 +1,6 @@
-package griffio.auth0.spring.security;
+package griffio.auth0.spring.mvc;
 
+import griffio.auth0.spring.security.Auth0User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -11,7 +12,11 @@ public class HandshakeController {
 
 	Logger log = LoggerFactory.getLogger(HandshakeController.class);
 
-	@RequestMapping(value = "/handshake")
+  public HandshakeController() {
+    log.debug("HandshakeController");
+  }
+
+  @RequestMapping(value = "/handshake")
 	@ResponseBody
 	public String handshake() {
 		return "OK";

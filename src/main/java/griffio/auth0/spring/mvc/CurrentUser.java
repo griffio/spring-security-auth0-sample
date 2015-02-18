@@ -1,4 +1,4 @@
-package griffio.auth0.spring.security;
+package griffio.auth0.spring.mvc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

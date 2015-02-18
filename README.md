@@ -6,7 +6,7 @@ https://auth0.com/
 
 This version is uses a simple JWT as the bearer token.
 
-The initial JWT is produced by a successfull authentication with auth0.
+The initial JWT is produced by a successful authentication with auth0.
 
 The Resource Server acts as a simple turn-style granting access when a valid token is presented in the Authorisation header. 
 

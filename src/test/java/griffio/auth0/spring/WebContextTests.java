@@ -3,34 +3,31 @@ package griffio.auth0.spring;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:application-context.xml")
+@SpringApplicationConfiguration(classes = Main.class)
 @WebAppConfiguration
 public class WebContextTests {
 
-    @Autowired
+    @Resource
     private WebApplicationContext context;
 
-    @Autowired
+    @Resource
     private FilterChainProxy defaultSecurityFilterChain;
-
-    @Autowired
-    private FilterChainProxy securedSecurityFilterChain;
 
     private MockMvc mvc;
 
@@ -45,7 +42,7 @@ public class WebContextTests {
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilters(defaultSecurityFilterChain, securedSecurityFilterChain)
+                .addFilters(defaultSecurityFilterChain)
                 .build();
     }
 
