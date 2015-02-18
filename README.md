@@ -1,6 +1,6 @@
 # Auth0 + Spring API Seed
 
-Updated Project with Spring Boot and Gradle and JWT library.
+Updated Gradle project with Spring Boot, Spring Security Java Config and JWT library.
 
 https://auth0.com/ 
 
