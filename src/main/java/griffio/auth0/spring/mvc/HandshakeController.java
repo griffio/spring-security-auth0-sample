@@ -12,10 +12,6 @@ public class HandshakeController {
 
 	Logger log = LoggerFactory.getLogger(HandshakeController.class);
 
-  public HandshakeController() {
-    log.debug("HandshakeController");
-  }
-
   @RequestMapping(value = "/handshake")
 	@ResponseBody
 	public String handshake() {

@@ -45,9 +45,9 @@ public class Auth0UserDetails implements UserDetails {
 		}
 
 		//set authorities
-		authorities = new ArrayList<GrantedAuthority>();
+		authorities = new ArrayList<>();
 		if (map.containsKey("roles")) {
-			ArrayList<String> roles = null;
+			ArrayList<String> roles;
 			try {
 				roles = (ArrayList<String>) map.get("roles");
 				for(String role : roles){

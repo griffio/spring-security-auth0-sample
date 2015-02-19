@@ -21,10 +21,10 @@ public class Auth0AuthenticationEntryPoint implements AuthenticationEntryPoint {
     if (isPreflight(request)) {
       response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     } else if (authException instanceof Auth0TokenException) {
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
       writer.println("HTTP Status " + HttpServletResponse.SC_UNAUTHORIZED + " - " + authException.getMessage());
     } else {
-      response.setStatus(HttpServletResponse.SC_FORBIDDEN, authException.getMessage());
+      response.sendError(HttpServletResponse.SC_FORBIDDEN, authException.getMessage());
       writer.println("HTTP Status " + HttpServletResponse.SC_FORBIDDEN + " - " + authException.getMessage());
     }
   }
