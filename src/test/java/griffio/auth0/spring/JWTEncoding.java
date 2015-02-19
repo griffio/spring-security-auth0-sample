@@ -20,7 +20,6 @@ public final class JWTEncoding {
         return jwtSigner.sign(map);
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, Object> decode(String token) throws Exception {
         JWTVerifier jwtVerifier = new JWTVerifier(clientSecret, clientId);
         return jwtVerifier.verify(token);

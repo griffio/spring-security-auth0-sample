@@ -20,8 +20,6 @@ apply plugin: 'spring-boot'
 group = 'griffio'
 version = '0.1-SNAPSHOT'
 description = "spring-security-auth0-api-example"
-project.ext.sourceCompatibility = JavaVersion.VERSION_1_8
-project.ext.targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenLocal()
@@ -38,6 +36,13 @@ dependencies {
     testCompile(
         'junit:junit',
         'org.springframework.boot:spring-boot-starter-test')
+}
+
+tasks.withType(JavaCompile) {
+  description = "javac: ignore processor hints, keep all other hints"
+  sourceCompatibility = JavaVersion.VERSION_1_7
+  targetCompatibility = JavaVersion.VERSION_1_7
+  options.compilerArgs += ["-Xlint:all,-processing"]
 }
 
 httpPort = 8080

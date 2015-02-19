@@ -14,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +59,8 @@ public class WebContextTests {
 
     @Test
     public void authorised_handshake_is_allowed() throws Exception {
-        String encoded = new JWTEncoding(clientId, clientSecret).encode(Collections.singletonMap("username", "bobert"));
+        Map<String, Object> params = Collections.<String, Object>singletonMap("username", "bobert");
+        String encoded = new JWTEncoding(clientId, clientSecret).encode(params);
         String bearerToken = String.format("Bearer %s", encoded);
         mvc.perform(get("/authorised/handshake").header("Authorization", bearerToken)).andExpect(status().isOk());
     }

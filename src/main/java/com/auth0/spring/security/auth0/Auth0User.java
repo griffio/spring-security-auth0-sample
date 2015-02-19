@@ -1,4 +1,4 @@
-package griffio.auth0.spring.security;
+package com.auth0.spring.security.auth0;
 
 public class Auth0User {
 

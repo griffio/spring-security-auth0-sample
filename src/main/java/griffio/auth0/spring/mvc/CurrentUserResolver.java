@@ -1,6 +1,6 @@
 package griffio.auth0.spring.mvc;
 
-import griffio.auth0.spring.security.Auth0User;
+import com.auth0.spring.security.auth0.Auth0User;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebArgumentResolver;
