@@ -1,10 +1,10 @@
-package com.auth0.spring.security.auth0;
+package griffio.auth0.spring.mvc;
 
-public class Auth0User {
+public class CurrentUserDetails {
 
     private final String username;
 
-    public Auth0User(String username) {
+    public CurrentUserDetails(String username) {
         this.username = username;
     }
 
@@ -14,13 +14,13 @@ public class Auth0User {
 
     @Override
     public String toString() {
-        return "Auth0User{" +
+        return "ApplicationUser{" +
                 "username='" + username + '\'' +
                 '}';
     }
 
-    public static Auth0User fromUsername(String username) {
-        return new Auth0User(username);
+    public static CurrentUserDetails fromUsername(String username) {
+        return new CurrentUserDetails(username);
     }
 
 }

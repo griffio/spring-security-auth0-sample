@@ -1,6 +1,5 @@
 package griffio.auth0.spring.mvc;
 
-import com.auth0.spring.security.auth0.Auth0User;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebArgumentResolver;
@@ -17,7 +16,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
         return methodParameter.getParameterAnnotation(CurrentUser.class) != null
-                && methodParameter.getParameterType().equals(Auth0User.class);
+                && methodParameter.getParameterType().equals(CurrentUserDetails.class);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         if (this.supportsParameter(methodParameter)) {
             Principal principal = webRequest.getUserPrincipal();
-            return Auth0User.fromUsername(principal.getName());
+            return CurrentUserDetails.fromUsername(principal.getName());
         } else {
             return WebArgumentResolver.UNRESOLVED;
         }

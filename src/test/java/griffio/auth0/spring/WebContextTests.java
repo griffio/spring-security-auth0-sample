@@ -58,6 +58,16 @@ public class WebContextTests {
     }
 
     @Test
+    public void index_html_is_allowed() throws Exception {
+        mvc.perform(get("/index.html")).andExpect(status().isOk());
+    }
+
+    @Test
+    public void favicon_is_allowed() throws Exception {
+        mvc.perform(get("/favicon.ico")).andExpect(status().isOk());
+    }
+
+    @Test
     public void authorised_handshake_is_allowed() throws Exception {
         Map<String, Object> params = Collections.<String, Object>singletonMap("username", "bobert");
         String encoded = new JWTEncoding(clientId, clientSecret).encode(params);

@@ -11,8 +11,6 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'jetty'
-    id 'war'
 }
 
 apply plugin: 'spring-boot'
@@ -44,10 +42,6 @@ tasks.withType(JavaCompile) {
   targetCompatibility = JavaVersion.VERSION_1_7
   options.compilerArgs += ["-Xlint:all,-processing"]
 }
-
-httpPort = 8080
-stopPort = 9080
-stopKey = "stopKey"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'

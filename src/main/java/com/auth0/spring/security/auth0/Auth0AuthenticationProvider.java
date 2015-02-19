@@ -7,8 +7,8 @@ import java.security.SignatureException;
 import java.util.Map;
 
 import com.auth0.jwt.JWTVerifyException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -19,87 +19,67 @@ import com.auth0.jwt.JWTVerifier;
 /**
  * Class that verifies the JWT token and in case of beeing valid, it will set
  * the userdetails in the authentication object
- * 
+ *
  * @author Daniel Teixeira
  */
 public class Auth0AuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
-	private JWTVerifier jwtVerifier = null;
-	private String clientSecret = null;
-	private String clientId = null;
-	private final Log logger = LogFactory.getLog(getClass());
-	private static final AuthenticationException AUTH_ERROR = new Auth0TokenException("Authentication error occured");
+  private JWTVerifier jwtVerifier = null;
+  private String clientSecret = null;
+  private String clientId = null;
+  private final Logger logger = LoggerFactory.getLogger(Auth0AuthenticationProvider.class);
+  private static final AuthenticationException AUTH_ERROR = new Auth0TokenException("Authentication error occured");
 
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-		String token = ((Auth0JWTToken) authentication).getJwt();
+    String token = ((Auth0JWTToken) authentication).getJwt();
 
-		logger.info("Trying to authenticate with token: " + token);
+    logger.info("Trying to authenticate with token: " + token);
 
-		Map<String, Object> decoded;
-		try {
+    Map<String, Object> decoded;
+    try {
 
-			Auth0JWTToken tokenAuth = ((Auth0JWTToken) authentication);
-			decoded = jwtVerifier.verify(token);
-			logger.debug("Decoded JWT token" + decoded);
-			tokenAuth.setAuthenticated(true);
-			tokenAuth.setPrincipal(new Auth0UserDetails(decoded));
-			tokenAuth.setDetails(decoded);
-			return authentication;
+      Auth0JWTToken tokenAuth = ((Auth0JWTToken) authentication);
+      decoded = jwtVerifier.verify(token);
+      logger.debug("Decoded JWT token" + decoded);
+      tokenAuth.setAuthenticated(true);
+      tokenAuth.setPrincipal(new Auth0UserDetails(decoded));
+      tokenAuth.setDetails(decoded);
+      return authentication;
 
-		} catch (InvalidKeyException e) {
-			logger.debug("InvalidKeyException thrown while decoding JWT token "
-					+ e.getLocalizedMessage());
-			throw AUTH_ERROR;
-		} catch (NoSuchAlgorithmException e) {
-			logger.debug("NoSuchAlgorithmException thrown while decoding JWT token "
-					+ e.getLocalizedMessage());
-			throw AUTH_ERROR;
-		} catch (IllegalStateException e) {
-			logger.debug("IllegalStateException thrown while decoding JWT token "
-					+ e.getLocalizedMessage());
-			throw AUTH_ERROR;
-		} catch (SignatureException e) {
-			logger.debug("SignatureException thrown while decoding JWT token "
-					+ e.getLocalizedMessage());
-			throw AUTH_ERROR;
-		} catch (IOException e) {
-			logger.debug("IOException thrown while decoding JWT token "
-					+ e.getLocalizedMessage());
-			throw AUTH_ERROR;
-		} catch (JWTVerifyException e) {
-            logger.debug("JWTVerifyException thrown while decoding JWT token "
-                    + e.getLocalizedMessage());
-            throw AUTH_ERROR;
-        }
+    } catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | JWTVerifyException
+        | IllegalStateException | IOException e) {
+      logger.debug("InvalidKeyException thrown while decoding JWT token " + e.getLocalizedMessage());
+      throw AUTH_ERROR;
     }
+  }
 
-	public boolean supports(Class<?> authentication) {
-		return Auth0JWTToken.class.isAssignableFrom(authentication);
-	}
+  public boolean supports(Class<?> authentication) {
+    return Auth0JWTToken.class.isAssignableFrom(authentication);
+  }
 
-	public void afterPropertiesSet() throws Exception {
-		if ((clientSecret == null) || (clientId == null)) {
-			throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
-		}
-		jwtVerifier = new JWTVerifier(clientSecret, clientId);
-	}
+  public void afterPropertiesSet() throws Exception {
+    if ((clientSecret == null) || (clientId == null)) {
+      throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
+    }
+    jwtVerifier = new JWTVerifier(clientSecret, clientId);
+  }
 
 
-	public String getClientSecret() {
-		return clientSecret;
-	}
+  public String getClientSecret() {
+    return clientSecret;
+  }
 
-	public void setClientSecret(String clientSecret) {
-		this.clientSecret = clientSecret;
-	}
+  public void setClientSecret(String clientSecret) {
+    this.clientSecret = clientSecret;
+  }
 
-	public String getClientId() {
-		return clientId;
-	}
+  public String getClientId() {
+    return clientId;
+  }
 
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
-	}
+  public void setClientId(String clientId) {
+    this.clientId = clientId;
+  }
 
 }
