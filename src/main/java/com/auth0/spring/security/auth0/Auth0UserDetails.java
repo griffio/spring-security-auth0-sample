@@ -37,7 +37,7 @@ public class Auth0UserDetails implements UserDetails {
 		} else if (map.containsKey("user_id")) {
 			this.username = map.get("user_id").toString();
 		} else {
-			this.username = "UNKOWNUN_USER";
+			this.username = "UNKNOWN";
 		}
 		
 		if (map.containsKey("email")) {

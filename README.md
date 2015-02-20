@@ -14,18 +14,29 @@ The Resource Server acts as a simple turn-style granting access when a valid tok
 
 #Running the example
 
+Browserify the client
+~~~
+npm run bundle
+~~~
+
 The ClientSecret, ClientId and Domain for Auth0 app is not supplied.
 
-You can set these variables in the `auth0.properties` file, or you can set them as arguments when running the app (with `-Dauth0.clientSecret=secret -Dauth0.clientId=clientid -Dauth0.domain=yourdomain.auth0.com`)
+You can set these variables in the `auth0.properties` file, or you can set them as arguments when running the app.
 
-```
-./gradlew run
+Gradle processes use -P properties that can then pass arguments to the JavaExec process.
 
+Spring Boot plugin runner
+
+~~~
+./gradlew bootRun -Pauth0="--auth0.clientId=FZ7Acusjd1BEjf4nbdid6x9PTJLBrE8P,--auth0.clientSecret=FIXME"
+~~~
+
+No auth
+~~~
 curl -v http://localhost:8080/handshake
-```
+~~~
 
-With Beefy
-
+Auth required
 ```
-npm run serve
+curl -v --header "Authorization: Bearer <Auth0 id token>" http://localhost:8080/authorised/handshake
 ```

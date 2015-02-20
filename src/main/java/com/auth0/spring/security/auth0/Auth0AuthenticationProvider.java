@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Base64;
 import java.util.Map;
 
 import com.auth0.jwt.JWTVerifyException;
@@ -49,7 +50,7 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
 
     } catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | JWTVerifyException
         | IllegalStateException | IOException e) {
-      logger.debug("InvalidKeyException thrown while decoding JWT token " + e.getLocalizedMessage());
+      logger.info("InvalidKeyException thrown while decoding JWT token " + e.getLocalizedMessage());
       throw AUTH_ERROR;
     }
   }
@@ -62,7 +63,7 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
     if ((clientSecret == null) || (clientId == null)) {
       throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
     }
-    jwtVerifier = new JWTVerifier(clientSecret, clientId);
+    jwtVerifier = new JWTVerifier(Base64.getUrlDecoder().decode(clientSecret), clientId);
   }
 
 

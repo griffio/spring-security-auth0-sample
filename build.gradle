@@ -43,6 +43,12 @@ tasks.withType(JavaCompile) {
   options.compilerArgs += ["-Xlint:all,-processing"]
 }
 
+tasks.withType(JavaExec) {
+  if (project.hasProperty('auth0')) {
+    args(project.auth0.split(","))
+  }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }

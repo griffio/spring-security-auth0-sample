@@ -3,6 +3,8 @@ package griffio.auth0.spring.security;
 import com.auth0.spring.security.auth0.Auth0AuthenticationEntryPoint;
 import com.auth0.spring.security.auth0.Auth0AuthenticationFilter;
 import com.auth0.spring.security.auth0.Auth0AuthenticationProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,8 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 @Order(1)
 public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
+  private static Logger log = LoggerFactory.getLogger(SecuredSecurityConfigurer.class);
+
   @Value(value = "${auth0.clientId}")
   private String clientId;
 
@@ -27,6 +31,7 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   @Bean
   public AuthenticationProvider authenticationProvider() {
+    log.info("{}:{}", clientId, clientSecret);
     Auth0AuthenticationProvider authenticationProvider;
     authenticationProvider = new Auth0AuthenticationProvider();
     authenticationProvider.setClientId(clientId);
