@@ -29,7 +29,8 @@ dependencies {
     compile(
         'org.springframework.boot:spring-boot-starter-web',
         'org.springframework.boot:spring-boot-starter-security',
-        'com.auth0:java-jwt:2.0.1')
+        'com.nimbusds:nimbus-jose-jwt:3.9',
+        'com.google.guava:guava:18.0')
 
     testCompile(
         'junit:junit',
@@ -38,8 +39,8 @@ dependencies {
 
 tasks.withType(JavaCompile) {
   description = "javac: ignore processor hints, keep all other hints"
-  sourceCompatibility = JavaVersion.VERSION_1_7
-  targetCompatibility = JavaVersion.VERSION_1_7
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
   options.compilerArgs += ["-Xlint:all,-processing"]
 }
 

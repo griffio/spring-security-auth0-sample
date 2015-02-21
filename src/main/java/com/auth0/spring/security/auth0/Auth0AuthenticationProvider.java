@@ -1,13 +1,8 @@
 package com.auth0.spring.security.auth0;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.util.Base64;
-import java.util.Map;
-
-import com.auth0.jwt.JWTVerifyException;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,7 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-import com.auth0.jwt.JWTVerifier;
+import java.text.ParseException;
 
 /**
  * Class that verifies the JWT token and in case of beeing valid, it will set
@@ -25,32 +20,28 @@ import com.auth0.jwt.JWTVerifier;
  */
 public class Auth0AuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
-  private JWTVerifier jwtVerifier = null;
-  private String clientSecret = null;
-  private String clientId = null;
+  private String clientSecret;
+  private String clientId;
   private final Logger logger = LoggerFactory.getLogger(Auth0AuthenticationProvider.class);
   private static final AuthenticationException AUTH_ERROR = new Auth0TokenException("Authentication error occured");
 
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-    String token = ((Auth0JWTToken) authentication).getJwt();
+    Auth0JWTToken auth0JWTAuthentication = (Auth0JWTToken) authentication;
 
-    logger.info("Trying to authenticate with token: " + token);
+    JWT jwt = auth0JWTAuthentication.getJwt();
 
-    Map<String, Object> decoded;
+    logger.info(jwt.serialize());
+
     try {
-
-      Auth0JWTToken tokenAuth = ((Auth0JWTToken) authentication);
-      decoded = jwtVerifier.verify(token);
-      logger.debug("Decoded JWT token" + decoded);
-      tokenAuth.setAuthenticated(true);
-      tokenAuth.setPrincipal(new Auth0UserDetails(decoded));
-      tokenAuth.setDetails(decoded);
+      ReadOnlyJWTClaimsSet claimsSet = JWTParser.parse(jwt.serialize(), new Auth0JWTVerifyHandler(clientSecret));
+      auth0JWTAuthentication.setAuthenticated(claimsSet != null);
+      if (claimsSet != null) {
+        auth0JWTAuthentication.setPrincipal(new Auth0UserDetails(claimsSet.getAllClaims()));
+        auth0JWTAuthentication.setDetails(jwt);
+      }
       return authentication;
-
-    } catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | JWTVerifyException
-        | IllegalStateException | IOException e) {
-      logger.info("InvalidKeyException thrown while decoding JWT token " + e.getLocalizedMessage());
+    } catch (ParseException e) {
       throw AUTH_ERROR;
     }
   }
@@ -63,7 +54,6 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
     if ((clientSecret == null) || (clientId == null)) {
       throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
     }
-    jwtVerifier = new JWTVerifier(Base64.getUrlDecoder().decode(clientSecret), clientId);
   }
 
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +24,7 @@ public class Auth0UserDetails implements UserDetails {
 	private Map<String, Object> details;
 	private String username;
 	private boolean emailVerified = false;
-	private Collection<GrantedAuthority> authorities = null;
+	private Collection<GrantedAuthority> authorities;
 	
 	private static final Log LOGGER = LogFactory.getLog(Auth0UserDetails.class);
 
@@ -68,8 +69,8 @@ public class Auth0UserDetails implements UserDetails {
 
 	}
 
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return authorities;
+	public Collection<GrantedAuthority> getAuthorities() {
+		return ImmutableList.copyOf(authorities);
 	}
 
 	/**
