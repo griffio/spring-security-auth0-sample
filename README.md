@@ -2,7 +2,7 @@
 
 ## Spring Boot, Spring Security Java Config
 
-Updated Gradle project with Spring Boot, Spring Security Java Config and JWT library.
+Updated Gradle project with Spring Boot, Spring Security Java Config and JWT (nimbus-jose-jwt) library.
 
 https://auth0.com/ 
 
