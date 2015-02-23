@@ -46,8 +46,8 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
     auth0AuthenticationEntryPoint = new Auth0AuthenticationEntryPoint();
 
     Auth0AuthenticationFilter authenticationFilter;
-    authenticationFilter = new Auth0AuthenticationFilter(authenticationManager(), auth0AuthenticationEntryPoint);
-
+    authenticationFilter = new Auth0AuthenticationFilter();
+    authenticationFilter.setAuthenticationManager(authenticationManager());
     http.csrf().disable()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and().antMatcher("/authorised/**").authorizeRequests().anyRequest().hasRole("USER")

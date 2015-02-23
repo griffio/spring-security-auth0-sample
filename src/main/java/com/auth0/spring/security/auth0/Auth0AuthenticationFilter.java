@@ -1,101 +1,48 @@
 package com.auth0.spring.security.auth0;
 
-import java.io.IOException;
-import java.util.regex.Pattern;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.util.StringUtils;
 
-/**
- * Filter responsible to intercept the JWT in the HTTP header and attempt an authentication. It delegates the authentication to the authentication manager
- *
- * @author Daniel Teixeira
- */
-public class Auth0AuthenticationFilter extends GenericFilterBean {
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
 
-  private AuthenticationManager authenticationManager;
-  private AuthenticationEntryPoint entryPoint;
+public class Auth0AuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-  public Auth0AuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationEntryPoint entryPoint) {
-    this.authenticationManager = authenticationManager;
-    this.entryPoint = entryPoint;
+  public Auth0AuthenticationFilter() {
+    super(AnyRequestMatcher.INSTANCE);
   }
 
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+  @Override
+  public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 
-    final HttpServletRequest request = (HttpServletRequest) req;
-    final HttpServletResponse response = (HttpServletResponse) res;
+    String authorizationHeader = request.getHeader("Authorization");
 
-    if (request.getMethod().equals("OPTIONS")) {
-      chain.doFilter(request, response);
-      return;
+    if (StringUtils.isEmpty(authorizationHeader)) {
+      throw new Auth0TokenException("Authorization header missing from request. Expected Authorization:");
     }
 
-    String jwt = getToken(request);
+    Auth0BearerAuthentication bearerAuthentication;
 
-    if (jwt != null) {
-      try {
-
-        Auth0JWTToken token = new Auth0JWTToken(jwt);
-        Authentication authResult = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authResult);
-
-      } catch (AuthenticationException failed) {
-        SecurityContextHolder.clearContext();
-        entryPoint.commence(request, response, failed);
-        return;
-      }
+    try {
+      bearerAuthentication = Auth0BearerAuthentication.create(authorizationHeader);
+    } catch (ParseException e) {
+      throw new Auth0TokenException(e);
     }
 
-    chain.doFilter(request, response);
+    return getAuthenticationManager().authenticate(bearerAuthentication);
 
   }
 
-  /**
-   * Looks at the authorization bearer and extracts the JWT
-   */
-  private String getToken(HttpServletRequest httpRequest) {
-    String token = null;
-    final String authorizationHeader = httpRequest.getHeader("authorization");
-    if (authorizationHeader == null) {
-      // "Unauthorized: No Authorization header was found"
-      return null;
-    }
-
-    String[] parts = authorizationHeader.split(" ");
-    if (parts.length != 2) {
-      // "Unauthorized: Format is Authorization: Bearer [token]"
-      return null;
-
-    }
-
-    String scheme = parts[0];
-    String credentials = parts[1];
-
-    Pattern pattern = Pattern.compile("^Bearer$", Pattern.CASE_INSENSITIVE);
-    if (pattern.matcher(scheme).matches()) {
-      token = credentials;
-    }
-    return token;
+  @Override
+  protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    SecurityContextHolder.getContext().setAuthentication(authResult);
   }
-
-  public AuthenticationManager getAuthenticationManager() {
-    return authenticationManager;
-  }
-
-  public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-    this.authenticationManager = authenticationManager;
-  }
-
 }

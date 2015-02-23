@@ -57,7 +57,7 @@ public class WebContextTests {
 
   @Test
   public void handshake_is_not_allowed() throws Exception {
-    mvc.perform(get("/authorised/handshake")).andExpect(status().isForbidden());
+    mvc.perform(get("/authorised/handshake")).andExpect(status().isUnauthorized());
   }
 
   @Test

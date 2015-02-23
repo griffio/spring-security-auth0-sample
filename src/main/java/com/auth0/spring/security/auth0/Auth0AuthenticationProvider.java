@@ -1,8 +1,9 @@
 package com.auth0.spring.security.auth0;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -12,50 +13,54 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.text.ParseException;
 
-/**
- * Class that verifies the JWT token and in case of beeing valid, it will set
- * the userdetails in the authentication object
- *
- * @author Daniel Teixeira
- */
 public class Auth0AuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
   private String clientSecret;
   private String clientId;
   private final Logger logger = LoggerFactory.getLogger(Auth0AuthenticationProvider.class);
-  private static final AuthenticationException AUTH_ERROR = new Auth0TokenException("Authentication error occured");
+  private MACVerifier macClientSecret;
 
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-    Auth0JWTToken auth0JWTAuthentication = (Auth0JWTToken) authentication;
+    if (!(authentication instanceof Auth0BearerAuthentication)) {
+      return null;
+    }
 
-    JWT jwt = auth0JWTAuthentication.getJwt();
-
-    logger.info(jwt.serialize());
+    final ReadOnlyJWTClaimsSet claimsSet;
+    final SignedJWT jwt;
 
     try {
-      ReadOnlyJWTClaimsSet claimsSet = JWTParser.parse(jwt.serialize(), new Auth0JWTVerifyHandler(clientSecret));
-      auth0JWTAuthentication.setAuthenticated(claimsSet != null);
-      if (claimsSet != null) {
-        auth0JWTAuthentication.setPrincipal(new Auth0UserDetails(claimsSet.getAllClaims()));
-        auth0JWTAuthentication.setDetails(jwt);
-      }
-      return authentication;
+      String idToken = authentication.getPrincipal().toString();
+      logger.info(idToken);
+      jwt = SignedJWT.parse(idToken);
+      claimsSet = jwt.getJWTClaimsSet();
     } catch (ParseException e) {
-      throw AUTH_ERROR;
+      throw new Auth0TokenException(e);
     }
+
+    try {
+      if (!jwt.verify(macClientSecret)) {
+        throw new Auth0TokenException("Failed to Verify jwt");
+      }
+    } catch (JOSEException e) {
+      throw new Auth0TokenException(e);
+    }
+
+    return Auth0JWTAuthentication.create(claimsSet);
+
   }
 
   public boolean supports(Class<?> authentication) {
-    return Auth0JWTToken.class.isAssignableFrom(authentication);
+    return Auth0BearerAuthentication.class.isAssignableFrom(authentication);
   }
 
   public void afterPropertiesSet() throws Exception {
     if ((clientSecret == null) || (clientId == null)) {
       throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
     }
-  }
 
+    macClientSecret = new MACVerifier(clientSecret);
+  }
 
   public String getClientSecret() {
     return clientSecret;
