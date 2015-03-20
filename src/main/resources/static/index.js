@@ -13,8 +13,8 @@ var jwt = require('jsonwebtoken');
 
     function setupPage() {
 
-        var domain = 'griffio-application.auth0.com';
-        var cid = 'FZ7Acusjd1BEjf4nbdid6x9PTJLBrE8P';
+        var domain = 'FIXME.auth0.com';
+        var cid = 'FIXME';
 
         widget = Auth0Lock(cid, domain);
 
