@@ -1,9 +1,7 @@
 package griffio.auth0.spring.mvc;
 
-import com.auth0.spring.security.auth0.CurrentAuth0UserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -11,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class HandshakeController {
 
-  Logger log = LoggerFactory.getLogger(HandshakeController.class);
+  private static Logger log = LoggerFactory.getLogger(HandshakeController.class);
 
   @RequestMapping(value = "/handshake")
   @ResponseBody
@@ -21,9 +19,8 @@ public class HandshakeController {
 
   @RequestMapping(value = "/authorised/handshake")
   @ResponseBody
-  public String authorisedHandshake(@CurrentUser UserAccount auth0User, @CurrentAuth0UserDetails UserDetails auth0UserDetails) {
-    log.info(auth0User.toString());
-    log.info(auth0UserDetails.getUsername());
+  public String authorisedHandshake(@SubjectToken String tokenSubject) {
+    log.info(tokenSubject);
     return "OK";
   }
 

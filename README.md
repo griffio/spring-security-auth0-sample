@@ -1,6 +1,6 @@
 # Auth0 + Spring API Seed
 
-## Spring Boot, Spring Security Java Config
+## Spring Boot, Spring Security Java Config with Java 8
 
 Updated Gradle project with Spring Boot, Spring Security Java Config and JWT (nimbus-jose-jwt) library.
 
@@ -10,6 +10,21 @@ This version is uses a simple JWT as the bearer token.
 
 The initial JWT is produced by a successful authentication with auth0.
 
+Example encoded Json web token format (see http://jwt.io/) to debug.
+~~~
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2dyaWZmaW8tYXBwbGljYXRpb24uYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDU0YzkzMmJhYTUxNzAzYWUwNGMxMjQyMCIsImF1ZCI6IkZaN0FjdXNqZDFCRWpmNG5iZGlkNng5UFRKTEJyRThQIiwiZXhwIjoxNDI2OTgyNjQ5LCJpYXQiOjE0MjY5NDY2NDl9.o1eJwoC69jC9_hNePGts9vHUR79YiSS_hZybFQ1weeU
+~~~
+
+~~~json
+{
+ "iss": "https://example.auth0.com/",
+ "sub": "auth0|11c111baa1111ae01c11111",
+ "aud": "TheClientId",
+ "exp": 1426964798,
+ "iat": 1426928798
+ }
+~~~
+
 The Resource Server acts as a simple turn-style granting access when a valid token is presented in the Authorisation header. 
 
 #Running the example
@@ -17,6 +32,8 @@ The Resource Server acts as a simple turn-style granting access when a valid tok
 You need to create an Auth0 application with a valid database user account to login via the http://localhost:8080/index.html page.
 
 Change the setupPage values in index.html to your application domain and client id provided by Auth0 (apps/APIs).
+
+The javascript client requests the UserInfo resource from auth0.
 
 ~~~javascript
    function setupPage() {
@@ -45,6 +62,9 @@ Spring Boot plugin runner
 ~~~
 ./gradlew bootRun -Pauth0="--auth0.clientId=FIXME,--auth0.clientSecret=FIXME"
 ~~~
+
+Browser page http://localhost:8080/
+Should should auth0 login page
 
 No auth
 ~~~

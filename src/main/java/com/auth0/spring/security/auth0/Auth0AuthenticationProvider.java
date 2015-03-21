@@ -1,5 +1,6 @@
 package com.auth0.spring.security.auth0;
 
+import com.google.common.base.Joiner;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
@@ -12,13 +13,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import java.text.ParseException;
+import java.util.Base64;
 
 public class Auth0AuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
-  private String clientSecret;
-  private String clientId;
-  private final Logger logger = LoggerFactory.getLogger(Auth0AuthenticationProvider.class);
-  private MACVerifier macClientSecret;
+  private static final Logger logger = LoggerFactory.getLogger(Auth0AuthenticationProvider.class);
+
+  private final String clientId;
+  private final MACVerifier macClientSecret;
+
+  public Auth0AuthenticationProvider(String clientId, String clientSecret) {
+    this.clientId = clientId;
+    this.macClientSecret = new MACVerifier(Base64.getUrlDecoder().decode(clientSecret));
+  }
 
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -31,9 +38,9 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
 
     try {
       String idToken = authentication.getPrincipal().toString();
-      logger.info(idToken);
       jwt = SignedJWT.parse(idToken);
       claimsSet = jwt.getJWTClaimsSet();
+      logger.info(Joiner.on(',').withKeyValueSeparator("=").join(claimsSet.getAllClaims()));
     } catch (ParseException e) {
       throw new Auth0TokenException(e);
     }
@@ -54,28 +61,12 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
     return Auth0BearerAuthentication.class.isAssignableFrom(authentication);
   }
 
+  @Override
   public void afterPropertiesSet() throws Exception {
-    if ((clientSecret == null) || (clientId == null)) {
-      throw new RuntimeException("client secret and client id are not set for Auth0AuthenticationProvider");
-    }
-
-    macClientSecret = new MACVerifier(clientSecret);
-  }
-
-  public String getClientSecret() {
-    return clientSecret;
-  }
-
-  public void setClientSecret(String clientSecret) {
-    this.clientSecret = clientSecret;
   }
 
   public String getClientId() {
     return clientId;
-  }
-
-  public void setClientId(String clientId) {
-    this.clientId = clientId;
   }
 
 }

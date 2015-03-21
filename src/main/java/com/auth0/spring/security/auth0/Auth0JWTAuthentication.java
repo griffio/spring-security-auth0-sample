@@ -3,9 +3,16 @@ package com.auth0.spring.security.auth0;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-
+/**
+ The claims provide the following attributes (example values).
+ {
+ "iss": "https://example.auth0.com/",
+ "sub": "auth0|11c111baa1111ae01c11111",
+ "aud": "TheClientId",
+ "exp": 1426964798,
+ "iat": 1426928798
+ }
+ */
 public class Auth0JWTAuthentication extends AbstractAuthenticationToken {
 
   private static final long serialVersionUID = 1L;
@@ -13,16 +20,16 @@ public class Auth0JWTAuthentication extends AbstractAuthenticationToken {
   private Object principal;
   private Object credentials;
 
-  public Auth0JWTAuthentication(UserDetails userDetails, ReadOnlyJWTClaimsSet claimsSet) {
-    super(userDetails.getAuthorities());
-    this.principal = userDetails;
-    this.credentials = claimsSet;
-    setAuthenticated(true);
-  }
-
   @Override
   public Object getCredentials() {
-    return this.credentials;
+    return credentials;
+  }
+
+  public Auth0JWTAuthentication(ReadOnlyJWTClaimsSet claimsSet) {
+    super(AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
+    this.principal = String.format("subject:%s@%s", claimsSet.getSubject(), claimsSet.getIssuer());
+    this.credentials = claimsSet;
+    setAuthenticated(true);
   }
 
   @Override
@@ -31,9 +38,7 @@ public class Auth0JWTAuthentication extends AbstractAuthenticationToken {
   }
 
   public static Auth0JWTAuthentication create(ReadOnlyJWTClaimsSet claimsSet) {
-    User user = new User(claimsSet.getSubject(), "", AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
-
-    return new Auth0JWTAuthentication(user, claimsSet);
+    return new Auth0JWTAuthentication(claimsSet);
   }
 
 }

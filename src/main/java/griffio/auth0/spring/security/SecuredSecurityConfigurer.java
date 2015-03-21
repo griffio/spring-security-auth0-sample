@@ -33,9 +33,7 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
   public AuthenticationProvider authenticationProvider() {
     log.info("{}:{}", clientId, clientSecret);
     Auth0AuthenticationProvider authenticationProvider;
-    authenticationProvider = new Auth0AuthenticationProvider();
-    authenticationProvider.setClientId(clientId);
-    authenticationProvider.setClientSecret(clientSecret);
+    authenticationProvider = new Auth0AuthenticationProvider(clientId, clientSecret);
     return authenticationProvider;
   }
 
@@ -60,4 +58,5 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth.authenticationProvider(authenticationProvider());
   }
+
 }

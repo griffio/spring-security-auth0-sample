@@ -1,11 +1,14 @@
 package griffio.auth0.spring.mvc;
 
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CurrentUser {
+@AuthenticationPrincipal
+public @interface SubjectToken {
 }

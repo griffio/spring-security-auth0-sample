@@ -13,7 +13,11 @@ var jwt = require('jsonwebtoken');
 
     function setupPage() {
 
+<<<<<<< Updated upstream
         var domain = 'FIXME.auth0.com';
+=======
+        var domain = 'FIXME';
+>>>>>>> Stashed changes
         var cid = 'FIXME';
 
         widget = Auth0Lock(cid, domain);

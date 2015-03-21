@@ -19,7 +19,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
+import java.util.Base64;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -52,7 +55,7 @@ public class WebContextTests {
 
   @Test
   public void handshake_is_allowed() throws Exception {
-    mvc.perform(get("/handshake")).andExpect(status().isOk());
+    mvc.perform(get("/handshake")).andExpect(status().isOk()).andExpect(content().string("OK"));
   }
 
   @Test
@@ -73,13 +76,16 @@ public class WebContextTests {
   @Test
   public void authorised_handshake_is_allowed() throws Exception {
     JWTClaimsSet claimsSet = new JWTClaimsSet();
-    claimsSet.setIssuer("griff.io");
-    claimsSet.setSubject("test.work");
+    claimsSet.setIssuer("example.com");
+    claimsSet.setSubject("test.user");
     claimsSet.setAudience("localhost");
     SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-    signedJWT.sign(new MACSigner(clientSecret));
+    signedJWT.sign(new MACSigner(Base64.getUrlDecoder().decode(clientSecret)));
     String bearerToken = String.format("Bearer %s", signedJWT.serialize());
-    mvc.perform(get("/authorised/handshake").header("Authorization", bearerToken)).andExpect(status().isOk());
+    mvc.perform(get("/authorised/handshake")
+        .header("Authorization", bearerToken))
+        .andExpect(status().isOk())
+        .andExpect(content().string("OK"));
   }
 
 }
