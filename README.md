@@ -60,7 +60,7 @@ Gradle processes use -P properties that can then pass arguments in the build scr
 
 Spring Boot plugin runner
 ~~~
-./gradlew bootRun -Pauth0="--auth0.clientId=FIXME,--auth0.clientSecret=FIXME"
+./gradlew bootRun -Pauth0="--auth0.clientId=FIXME,--auth0.clientSecret=FIXME,--auth0.domain=FIXME"
 ~~~
 
 Browser page http://localhost:8080/

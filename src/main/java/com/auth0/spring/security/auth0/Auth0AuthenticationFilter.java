@@ -54,6 +54,7 @@ public class Auth0AuthenticationFilter extends GenericFilterBean {
         throw new Auth0TokenException(e);
       }
     } catch (AuthenticationException e) {
+      logger.error("AuthenticationException", e);
       failureHandler.onAuthenticationFailure(httpRequest, httpResponse, e);
     }
 

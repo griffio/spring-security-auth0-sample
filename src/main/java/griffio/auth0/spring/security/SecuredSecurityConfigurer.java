@@ -17,6 +17,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
+import java.time.Clock;
+
 @Configuration
 @Order(1)
 public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
@@ -29,12 +31,21 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
   @Value(value = "${auth0.clientSecret}")
   private String clientSecret;
 
+  @Value(value = "${auth0.domain}")
+  private String issuer;
+
   @Bean
   public AuthenticationProvider authenticationProvider() {
     log.info("{}:{}", clientId, clientSecret);
     Auth0AuthenticationProvider authenticationProvider;
-    authenticationProvider = new Auth0AuthenticationProvider(clientId, clientSecret);
+
+    authenticationProvider = new Auth0AuthenticationProvider(clientId, clientSecret, issuer, systemClock());
     return authenticationProvider;
+  }
+
+  @Bean
+  public Clock systemClock() {
+    return Clock.systemUTC();
   }
 
   @Override

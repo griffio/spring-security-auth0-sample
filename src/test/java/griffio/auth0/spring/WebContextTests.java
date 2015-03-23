@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.web.FilterChainProxy;
@@ -19,7 +20,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
+import java.time.Clock;
 import java.util.Base64;
+import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,6 +46,12 @@ public class WebContextTests {
 
   @Value(value = "${auth0.clientSecret}")
   private String clientSecret;
+
+  @Value(value = "${auth0.domain}")
+  private String issuer;
+
+  @Resource
+  private Clock systemClock;
 
   @Before
   public void setup() {
@@ -75,10 +84,15 @@ public class WebContextTests {
 
   @Test
   public void authorised_handshake_is_allowed() throws Exception {
+    Date now = new Date(systemClock.millis());
+    Date expires = new Date(systemClock.millis() + 5000);
+
     JWTClaimsSet claimsSet = new JWTClaimsSet();
-    claimsSet.setIssuer("example.com");
+    claimsSet.setIssuer(issuer);
     claimsSet.setSubject("test.user");
-    claimsSet.setAudience("localhost");
+    claimsSet.setAudience(clientId);
+    claimsSet.setExpirationTime(expires);
+    claimsSet.setIssueTime(now);
     SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
     signedJWT.sign(new MACSigner(Base64.getUrlDecoder().decode(clientSecret)));
     String bearerToken = String.format("Bearer %s", signedJWT.serialize());
