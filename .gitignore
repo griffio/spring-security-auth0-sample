@@ -60,3 +60,4 @@ build/
 node_modules/
 npm-debug.log
 src/main/resources/static/bundle.js
+static/bundle.js
