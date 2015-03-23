@@ -1,14 +1,14 @@
 # Auth0 + Spring API Seed
 
-## Spring Boot, Spring Security Java Config with Java 8
-
-Updated Gradle project with Spring Boot, Spring Security Java Config and JWT (nimbus-jose-jwt) library.
-
 https://auth0.com/ 
 
-This version is uses a simple JWT as the bearer token.
+## Spring Boot, Spring Security Java Config with Java 8
 
-The initial JWT is produced by a successful authentication with auth0.
+Gradle project with Spring Boot, Spring Security Java Config and JWT (nimbus-jose-jwt) library.
+
+This example uses simple JWT as the bearer token.
+
+The JWT is produced by a successful authentication with Auth0, so will require a user account setup.
 
 Example encoded Json web token format (see http://jwt.io/) to debug.
 ~~~
@@ -25,15 +25,15 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2dyaWZmaW8tYXBwbGljYXR
  }
 ~~~
 
-The Resource Server acts as a simple turn-style granting access when a valid token is presented in the Authorisation header. 
+The Resource Server (via Spring Security) acts as a simple turn-style granting access when a valid token is presented in the Authorisation header. 
 
 #Running the example
 
-You need to create an Auth0 application with a valid database user account to login via the http://localhost:8080/index.html page.
+You need to create an Auth0 application with a valid database user account to login via the application page http://localhost:8080/index.html.
 
-Change the setupPage values in index.html to your application domain and client id provided by Auth0 (apps/APIs).
+Change the setupPage function values in index.html to your application domain and client id provided by Auth0 (apps/APIs).
 
-The javascript client requests the UserInfo resource from auth0.
+The javascript client requests the UserInfo resource from auth0 and calls the application resource with the bearer token.
 
 ~~~javascript
    function setupPage() {
