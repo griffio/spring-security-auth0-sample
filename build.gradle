@@ -29,7 +29,7 @@ dependencies {
     compile(
         'org.springframework.boot:spring-boot-starter-web',
         'org.springframework.boot:spring-boot-starter-security',
-        'com.nimbusds:nimbus-jose-jwt:3.9',
+        'com.nimbusds:nimbus-jose-jwt:4.2',
         'com.google.guava:guava:18.0')
 
     testCompile(

@@ -54,6 +54,9 @@ npm run bundle
 
 The ClientSecret, ClientId and Domain for Auth0 app are not supplied and are provided from Auth0 (Apps/APIs).
 
+The ClientSecret is a url-base64 encoded from the auth0 application config
+The Domain entered must match exactly e.g: "https://myapp-application.auth0.com/"
+
 You can set these variables in the `application.properties` file, or you can set them as arguments when running the app.
 
 Gradle processes use -P properties that can then pass arguments in the build script to the JavaExec process.

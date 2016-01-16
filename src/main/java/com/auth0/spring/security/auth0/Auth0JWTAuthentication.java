@@ -1,6 +1,7 @@
 package com.auth0.spring.security.auth0;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 /**
@@ -25,7 +26,7 @@ public class Auth0JWTAuthentication extends AbstractAuthenticationToken {
     return credentials;
   }
 
-  public Auth0JWTAuthentication(ReadOnlyJWTClaimsSet claimsSet) {
+  public Auth0JWTAuthentication(JWTClaimsSet claimsSet) {
     super(AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
     this.principal = String.format("subject:%s@%s", claimsSet.getSubject(), claimsSet.getIssuer());
     this.credentials = claimsSet;
@@ -37,7 +38,7 @@ public class Auth0JWTAuthentication extends AbstractAuthenticationToken {
     return this.principal;
   }
 
-  public static Auth0JWTAuthentication create(ReadOnlyJWTClaimsSet claimsSet) {
+  public static Auth0JWTAuthentication create(JWTClaimsSet claimsSet) {
     return new Auth0JWTAuthentication(claimsSet);
   }
 

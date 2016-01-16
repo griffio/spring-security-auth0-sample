@@ -1,9 +1,7 @@
 package com.auth0.spring.security.auth0;
 
 import com.google.common.base.Joiner;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,6 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.text.ParseException;
 import java.time.Clock;
-import java.util.Base64;
 import java.util.Date;
 
 public class Auth0AuthenticationProvider implements AuthenticationProvider, InitializingBean {
@@ -25,13 +22,13 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
   private final String clientId;
   private final String issuer;
   private final Clock verifierClock;
-  private final MACVerifier macClientSecret;
+  private final Auth0MACProvider verifyProvider;
 
-  public Auth0AuthenticationProvider(String clientId, String clientSecret, String issuer, Clock verifyClock) {
+  public Auth0AuthenticationProvider(String clientId, Auth0MACProvider verifyProvider, String issuer, Clock verifyClock) {
     this.clientId = clientId;
     this.issuer = issuer;
     this.verifierClock = verifyClock;
-    this.macClientSecret = new MACVerifier(Base64.getUrlDecoder().decode(clientSecret));
+    this.verifyProvider = verifyProvider;
   }
 
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -40,24 +37,20 @@ public class Auth0AuthenticationProvider implements AuthenticationProvider, Init
       return null;
     }
 
-    final ReadOnlyJWTClaimsSet claimsSet;
+    final JWTClaimsSet claimsSet;
     final SignedJWT jwt;
 
     try {
       String idToken = authentication.getPrincipal().toString();
       jwt = SignedJWT.parse(idToken);
       claimsSet = jwt.getJWTClaimsSet();
-      logger.info(Joiner.on(',').withKeyValueSeparator("=").join(claimsSet.getAllClaims()));
+      logger.info(Joiner.on(',').withKeyValueSeparator("=").join(claimsSet.getClaims()));
     } catch (ParseException e) {
       throw new Auth0TokenException(e);
     }
 
-    try {
-      if (!jwt.verify(macClientSecret)) {
-        throw new Auth0TokenException("Failed to Verify jwt");
-      }
-    } catch (JOSEException e) {
-      throw new Auth0TokenException(e);
+    if (!verifyProvider.isVerified(jwt)) {
+      throw new Auth0TokenException("Failed to Verify jwt");
     }
 
     Date now = new Date(verifierClock.millis());

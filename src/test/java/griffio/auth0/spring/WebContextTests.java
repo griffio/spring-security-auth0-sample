@@ -8,7 +8,6 @@ import com.nimbusds.jwt.SignedJWT;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.web.FilterChainProxy;
@@ -84,17 +83,20 @@ public class WebContextTests {
 
   @Test
   public void authorised_handshake_is_allowed() throws Exception {
+
+    byte[] secretBytes = Base64.getUrlDecoder().decode(clientSecret);
+
     Date now = new Date(systemClock.millis());
     Date expires = new Date(systemClock.millis() + 5000);
-
-    JWTClaimsSet claimsSet = new JWTClaimsSet();
-    claimsSet.setIssuer(issuer);
-    claimsSet.setSubject("test.user");
-    claimsSet.setAudience(clientId);
-    claimsSet.setExpirationTime(expires);
-    claimsSet.setIssueTime(now);
+    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+    builder.issuer(issuer);
+    builder.subject("test.user");
+    builder.audience(clientId);
+    builder.expirationTime(expires);
+    builder.issueTime(now);
+    JWTClaimsSet claimsSet = builder.build();
     SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-    signedJWT.sign(new MACSigner(Base64.getUrlDecoder().decode(clientSecret)));
+    signedJWT.sign(new MACSigner(secretBytes));
     String bearerToken = String.format("Bearer %s", signedJWT.serialize());
     mvc.perform(get("/authorised/handshake")
         .header("Authorization", bearerToken))
