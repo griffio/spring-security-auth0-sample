@@ -10,15 +10,22 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class JWTParserTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   JWTClaimsSet expected;
   MACVerifier bogusMacVerifier;
   MACVerifier macVerifier;
   MACSigner macSigner;
+  SignedJWT signedJWT;
   StringBuilder secretKeySource;
+  String secret = "12345678901234567890123456789012";
 
   private static JWTClaimsSet claimsSet() {
     JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
@@ -30,30 +37,35 @@ public class JWTParserTest {
 
   @Before
   public void fixture() throws Exception {
-    secretKeySource = new StringBuilder("12345678901234567890123456789012");
+    secretKeySource = new StringBuilder(secret);
     macSigner = new MACSigner(secretKeySource.toString());
     macVerifier = new MACVerifier(secretKeySource.toString());
     bogusMacVerifier = new MACVerifier(secretKeySource.reverse().toString());
     expected = claimsSet();
+    signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), expected);
+    signedJWT.sign(macSigner);
   }
 
   @Test
   public void jwt_reversed_secret_key_claims_are_not_valid() throws Exception {
-    SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), expected);
-    signedJWT.sign(macSigner);
     Auth0MACProvider auth0MACProvider = new Auth0MACProvider(bogusMacVerifier);
     Assert.assertNull(auth0MACProvider.extractClaims(signedJWT));
   }
 
   @Test
   public void jwt_secret_key_claims_verified() throws Exception {
-    SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), expected);
-    signedJWT.sign(macSigner);
     Auth0MACProvider auth0MACProvider = new Auth0MACProvider(macVerifier);
     JWTClaimsSet actual = auth0MACProvider.extractClaims(signedJWT);
     Assert.assertEquals(expected.getIssuer(), actual.getIssuer());
     Assert.assertEquals(expected.getSubject(), actual.getSubject());
     Assert.assertEquals(expected.getAudience(), actual.getAudience());
+  }
+
+  @Test
+  public void secret_too_short() throws JOSEException {
+    thrown.expect(JOSEException.class);
+    Auth0MACProvider auth0MACProvider = new Auth0MACProvider(new MACVerifier("too short"));
+    auth0MACProvider.isVerified(signedJWT);
   }
 
 }
