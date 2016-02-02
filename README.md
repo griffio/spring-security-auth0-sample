@@ -37,8 +37,8 @@ The javascript client requests the UserInfo resource from auth0 and calls the ap
 
 ~~~javascript
    function setupPage() {
-        var domain = 'FIXME';
-        var cid = 'FIXME';
+        var domain = 'FIXME'; // myapp-application.auth0.com
+        var cid = 'FIXME'; // ZZZYzzzz1ZZyy2yyyyy1x0YYYYxYYY
         ...
    }
 ~~~
@@ -55,7 +55,7 @@ npm run bundle
 The ClientSecret, ClientId and Domain for Auth0 app are not supplied and are provided from Auth0 (Apps/APIs).
 
 The ClientSecret is a url-base64 encoded from the auth0 application config
-The Domain entered must match exactly e.g: "https://myapp-application.auth0.com/"
+The Domain entered here must match exactly e.g: "https://myapp-application.auth0.com/"
 
 You can set these variables in the `application.properties` file, or you can set them as arguments when running the app.
 

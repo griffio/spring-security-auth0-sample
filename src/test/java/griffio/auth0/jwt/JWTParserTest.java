@@ -1,71 +1,55 @@
 package griffio.auth0.jwt;
 
-import com.auth0.spring.security.auth0.Auth0MACProvider;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.security.Key;
+
 public class JWTParserTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  Claims expected;
+  String signedJWT;
+  Key secret;
+  Key bogusSecret;
 
-  JWTClaimsSet expected;
-  MACVerifier bogusMacVerifier;
-  MACVerifier macVerifier;
-  MACSigner macSigner;
-  SignedJWT signedJWT;
-  StringBuilder secretKeySource;
-  String secret = "12345678901234567890123456789012";
-
-  private static JWTClaimsSet claimsSet() {
-    JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder();
-    claimsSet.issuer("griff.io");
-    claimsSet.subject("test.work");
-    claimsSet.audience("localhost");
-    return claimsSet.build();
+  private static Claims claims() {
+    return Jwts.claims()
+        .setIssuer("griff.io")
+        .setSubject("test.work")
+        .setAudience("localhost");
   }
 
   @Before
   public void fixture() throws Exception {
-    secretKeySource = new StringBuilder(secret);
-    macSigner = new MACSigner(secretKeySource.toString());
-    macVerifier = new MACVerifier(secretKeySource.toString());
-    bogusMacVerifier = new MACVerifier(secretKeySource.reverse().toString());
-    expected = claimsSet();
-    signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), expected);
-    signedJWT.sign(macSigner);
+    secret = MacProvider.generateKey();
+    bogusSecret = MacProvider.generateKey();
+    expected = claims();
+    signedJWT = Jwts.builder().setClaims(expected).signWith(SignatureAlgorithm.HS512, secret).compact();
   }
 
   @Test
-  public void jwt_reversed_secret_key_claims_are_not_valid() throws Exception {
-    Auth0MACProvider auth0MACProvider = new Auth0MACProvider(bogusMacVerifier);
-    Assert.assertNull(auth0MACProvider.extractClaims(signedJWT));
+  public void jwt_bogus_secret_key_claims_are_not_valid() throws Exception {
+    thrown.expect(SignatureException.class);
+    Jwts.parser().setSigningKey(bogusSecret).parseClaimsJws(signedJWT);
   }
 
   @Test
   public void jwt_secret_key_claims_verified() throws Exception {
-    Auth0MACProvider auth0MACProvider = new Auth0MACProvider(macVerifier);
-    JWTClaimsSet actual = auth0MACProvider.extractClaims(signedJWT);
-    Assert.assertEquals(expected.getIssuer(), actual.getIssuer());
-    Assert.assertEquals(expected.getSubject(), actual.getSubject());
-    Assert.assertEquals(expected.getAudience(), actual.getAudience());
-  }
-
-  @Test
-  public void secret_too_short() throws JOSEException {
-    thrown.expect(JOSEException.class);
-    Auth0MACProvider auth0MACProvider = new Auth0MACProvider(new MACVerifier("too short"));
-    auth0MACProvider.isVerified(signedJWT);
+    Jws<Claims> actual = Jwts.parser().setSigningKey(secret).parseClaimsJws(signedJWT);
+    Assert.assertEquals(expected.getIssuer(), actual.getBody().getIssuer());
+    Assert.assertEquals(expected.getSubject(), actual.getBody().getSubject());
+    Assert.assertEquals(expected.getAudience(), actual.getBody().getAudience());
   }
 
 }

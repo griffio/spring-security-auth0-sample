@@ -1,10 +1,8 @@
 package griffio.auth0.spring;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +17,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
-import java.time.Clock;
 import java.util.Base64;
 import java.util.Date;
 
@@ -48,9 +45,6 @@ public class WebContextTests {
 
   @Value(value = "${auth0.domain}")
   private String issuer;
-
-  @Resource
-  private Clock systemClock;
 
   @Before
   public void setup() {
@@ -84,20 +78,21 @@ public class WebContextTests {
   @Test
   public void authorised_handshake_is_allowed() throws Exception {
 
-    byte[] secretBytes = Base64.getUrlDecoder().decode(clientSecret);
+    Date now = new Date();
 
-    Date now = new Date(systemClock.millis());
-    Date expires = new Date(systemClock.millis() + 5000);
-    JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
-    builder.issuer(issuer);
-    builder.subject("test.user");
-    builder.audience(clientId);
-    builder.expirationTime(expires);
-    builder.issueTime(now);
-    JWTClaimsSet claimsSet = builder.build();
-    SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-    signedJWT.sign(new MACSigner(secretBytes));
-    String bearerToken = String.format("Bearer %s", signedJWT.serialize());
+    Claims claims = Jwts.claims()
+        .setAudience(clientId)
+        .setIssuer("griff.io")
+        .setIssuedAt(now)
+        .setNotBefore(now)
+        .setSubject("test.work");
+
+    byte[] signingKey = Base64.getUrlDecoder().decode(clientSecret);
+
+    String jwt = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, signingKey).compact();
+
+    String bearerToken = String.format("Bearer %s", jwt);
+
     mvc.perform(get("/authorised/handshake")
         .header("Authorization", bearerToken))
         .andExpect(status().isOk())
