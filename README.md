@@ -4,7 +4,7 @@ https://auth0.com/
 
 ## Spring Boot, Spring Security Java Config with Java 8
 
-Gradle project with Spring Boot, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library.
+Gradle project with Spring Boot 1.3.3, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library.
 
 This example uses simple JWT as the bearer token.
 
