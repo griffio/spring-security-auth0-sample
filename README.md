@@ -31,7 +31,7 @@ The Resource Server (via Spring Security) acts as a simple turn-style granting a
 
 You need to create an Auth0 application with a valid database user account to login via the application page http://localhost:8080/index.html.
 
-Change the setupPage function values in “index.html” to your application domain and client id provided by Auth0 (apps/APIs) in the settings page of your application.
+Change the setupPage function values in “src/main/resources/static/index.js” to your application domain and client id provided by Auth0 (apps/APIs) in the settings page of your application.
 
 The JavaScript client requests the UserInfo resource from auth0 and calls the application resource with the bearer token.
 
@@ -44,7 +44,7 @@ The JavaScript client requests the UserInfo resource from auth0 and calls the ap
 ~~~
 
 ~~~
-npm init
+npm install
 ~~~
 
 Browserify the client
