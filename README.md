@@ -6,6 +6,8 @@ https://auth0.com/
 
 Gradle project with Spring Boot 1.3.5, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library and Auth0 Lock 9.2.x.
 
+Tested on Node v6.2.1, npm v3.9.5
+
 This example uses a simple JWT as the bearer token.
 
 The JWT is produced by a successful authentication with Auth0, so will require a user account setup.
@@ -48,6 +50,7 @@ npm install
 ~~~
 
 Browserify the client
+
 ~~~
 npm run bundle
 ~~~
@@ -58,11 +61,18 @@ The ClientSecret is a url-base64 encoded from the Auth0 application config. Use 
 
 The Domain url entered here must be similar to this example:- "https://myapp-application.auth0.com/“.
 
+---
+
+### Spring Boot plugin runner
+
 You can set these variables in the `application.properties` file, or you can set them as arguments when running the app.
+
+~~~
+./gradlew bootRun
+~~~
 
 Gradle processes use -P properties that can then pass arguments in the build script to the JavaExec process.
 
-Spring Boot plugin runner
 ~~~
 ./gradlew bootRun -Pauth0="--auth0.clientId=FIXME,--auth0.clientSecret=FIXME,--auth0.domain=FIXME"
 ~~~
@@ -70,11 +80,13 @@ Spring Boot plugin runner
 Browser page is for login is:- http://localhost:8080 and displays auth0 login page.
 
 Test without auth on command line
+
 ~~~
 curl -v http://localhost:8080/handshake
 ~~~
 
 Auth token required for authorised handshake
+
 ~~~
 curl -v --header "Authorization: Bearer <Auth0 id token>" http://localhost:8080/authorised/handshake
 ~~~
