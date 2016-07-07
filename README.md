@@ -4,7 +4,7 @@ https://auth0.com/
 
 ## Spring Boot, Spring Security Java Config with Java 8
 
-Gradle project with Spring Boot 1.3.5, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library and Auth0 Lock 9.2.x.
+Gradle project with Spring Boot 1.3.6, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library and Auth0 Lock 9.2.x.
 
 Tested on Node v6.2.1, npm v3.9.5
 
