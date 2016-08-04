@@ -2,12 +2,11 @@
 
 https://auth0.com/ 
 
-## Spring Boot 1.4.0, Spring Framework (4.3), Spring Security Java Config
+## Spring Boot, Spring Framework (4.3.2), Spring Security Java Config
 
-Gradle project with Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library and Auth0 Lock 9.2.x.
+Gradle project with Spring Boot 1.4.0, Spring Security Java Config and JWT (io.jsonwebtoken:jjwt) library and Auth0 Lock 9.2.x.
 
 Tested on Node v6.2.1, npm v3.9.5
-
 This example uses a simple JWT as the bearer token.
 
 The JWT is produced by a successful authentication with Auth0, so will require a user account setup.

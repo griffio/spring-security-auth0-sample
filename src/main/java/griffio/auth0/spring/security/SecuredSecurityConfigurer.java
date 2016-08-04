@@ -14,8 +14,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @Order(1)
 public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
@@ -30,6 +36,9 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   @Value(value = "${auth0.domain}")
   private String issuer;
+
+  @Value(value = "${cors.allowed-origins}")
+  private List<String> corsAllowedOrigins;
 
   @Bean
   public AuthenticationProvider authenticationProvider() throws Exception {
@@ -50,15 +59,24 @@ public class SecuredSecurityConfigurer extends WebSecurityConfigurerAdapter {
     authenticationFilter.setAuthenticationManager(authenticationManager());
     http.csrf().disable()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and().cors() // http://docs.spring.io/spring-security/site/docs/4.1.x/reference/htmlsingle/#cors
+        .and().exceptionHandling().authenticationEntryPoint(auth0AuthenticationEntryPoint)
         .and().antMatcher("/authorised/**").authorizeRequests().anyRequest().hasRole("USER")
-        .and().addFilterAfter(authenticationFilter, SecurityContextPersistenceFilter.class)
-        .addFilterBefore(new SimpleCORSFilter(), ChannelProcessingFilter.class)
-        .exceptionHandling().authenticationEntryPoint(auth0AuthenticationEntryPoint);
+        .and().addFilterAfter(authenticationFilter, SecurityContextPersistenceFilter.class);
+  }
+
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(corsAllowedOrigins);
+    configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/authorised/**", configuration);
+    return source;
   }
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth.authenticationProvider(authenticationProvider());
   }
-
 }

@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import java.util.Base64;
 import java.util.Date;
 
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -93,7 +94,7 @@ public class WebContextTests {
     String bearerToken = String.format("Bearer %s", jwt);
 
     mvc.perform(get("/authorised/handshake")
-        .header("Authorization", bearerToken))
+        .header(AUTHORIZATION, bearerToken).header(ORIGIN, "example.com"))
         .andExpect(status().isOk())
         .andExpect(content().string("OK"));
   }
